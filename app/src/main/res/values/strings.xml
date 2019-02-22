@@ -4,4 +4,11 @@
     <string name="Login">Sign In With Google</string>
     <string name="title">Guess My Facts!</string>
     <string name="logout_text">Log Out</string>
+    <string name="title_activity_profile_creation">Log Out</string>
+    <string name="profile_creation_welcome_message">Welcome! Complete the questionnaire to proceed</string>
+    <string name="enter_your_age">Enter your Age</string>
+    <string name="your_favourite_color">Your favourite color</string>
+    <string name="your_favourite_hobby">Your favourite hobby</string>
+    <string name="profile_creation_submit">Submit</string>
+    title_activity_profile_creation
 </resources>
