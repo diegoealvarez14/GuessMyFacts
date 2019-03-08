@@ -3,6 +3,8 @@ package com.example.guessmyfacts;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,6 +17,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Login extends AppCompatActivity {
 
@@ -42,6 +46,8 @@ public class Login extends AppCompatActivity {
                 signIn();
             }
         });
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("message");
 
 
     }
@@ -84,7 +90,7 @@ public class Login extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            // Signed in successfully, show authenticated UI.
+            // Signed in successfully, show authenticated UI.K
             Toast.makeText(this, "Sign In Successful!",
                     Toast.LENGTH_LONG).show();
             Intent profileCreation = new Intent(this, ProfileCreation.class);
@@ -98,9 +104,6 @@ public class Login extends AppCompatActivity {
                     Toast.LENGTH_LONG).show();
         }
     }
-
-
-
 
 
 }
