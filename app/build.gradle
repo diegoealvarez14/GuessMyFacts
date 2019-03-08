@@ -19,8 +19,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.firebase:firebase-database:16.0.6'
+    implementation 'com.google.firebase:firebase-database:16.1.0'
     implementation 'com.google.firebase:firebase-core:16.0.7'
+    implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'

@@ -10,5 +10,6 @@
     <string name="your_favourite_color">Your favourite color</string>
     <string name="your_favourite_hobby">Your favourite hobby</string>
     <string name="profile_creation_submit">Submit</string>
+    <string name="title_activity_main_game">MainGame</string>
     title_activity_profile_creation
 </resources>

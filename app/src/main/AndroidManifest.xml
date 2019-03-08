@@ -10,9 +10,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".MainGame"
+            android:label="@string/title_activity_main_game"
+            android:parentActivityName=".Login"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.guessmyfacts.Login" />
+        </activity>
+        <activity
             android:name=".ProfileCreation"
             android:label="@string/title_activity_profile_creation"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Login"
             android:label="@string/app_name"
