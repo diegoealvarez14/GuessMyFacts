@@ -5,21 +5,33 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ProfileCreation extends AppCompatActivity {
 
     GoogleSignInClient mGoogleSignInClient;
+    final String AGE_KEY = "AGE";
+    final String COLOR_KEY = "COLOR";
+    final String HOBBY_KEY = "HOBBY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +76,40 @@ public class ProfileCreation extends AppCompatActivity {
     protected void submitQuestionnaire(View view){
         //update database with the user's answers
         //navigate to "game" activity
+
+        final Intent game = new Intent(this, MainGame.class);
+
+        findViewById(R.id.submitButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int age = Integer.parseInt(((TextView)findViewById(R.id.textViewAge)).getText().toString());
+                String color = ((TextView)findViewById(R.id.textViewColor)).getText().toString();
+                String hobby = ((TextView)findViewById(R.id.textViewHobby)).getText().toString();
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> user = new HashMap<String, Object>();
+                user.put(AGE_KEY, age);
+                user.put(COLOR_KEY, color);
+                user.put(HOBBY_KEY, hobby);
+                db.collection("users")
+                        .add(user)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("ProfileCreation", "Error adding document", e);
+                            }
+                        });;
+
+                startActivity(game);
+                finish();
+            }
+        });
     }
 
     @Override
