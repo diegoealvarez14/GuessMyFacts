@@ -43,7 +43,7 @@ public class ProfileCreation extends AppCompatActivity {
         setContentView(R.layout.activity_profile_creation);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        final Intent game = new Intent(this, MainGame.class);
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -58,7 +58,7 @@ public class ProfileCreation extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                submit();
 
             }
         });
@@ -69,41 +69,7 @@ public class ProfileCreation extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
-                EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
-                EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
-
-
-
-                String age = editTextAge.getText().toString();
-                String color = editTextColor.getText().toString();
-                String hobby = editTextHobby.getText().toString();
-
-
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                Map<String, Object> user = new HashMap<String, Object>();
-                user.put(AGE_KEY, age);
-                user.put(COLOR_KEY, color);
-                user.put(HOBBY_KEY, hobby);
-                db.collection("users")
-                        .add(user)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w("ProfileCreation", "Error adding document", e);
-                            }
-                        });;
-
-
-                startActivity(game);
-                finish();
+                submit();
             }
         });
 
@@ -128,6 +94,45 @@ public class ProfileCreation extends AppCompatActivity {
                         finish();
                     }
                 });
+    }
+
+
+    private void submit(){
+        final Intent game = new Intent(this, MainGame.class);
+        EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
+        EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
+        EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
+
+
+
+        String age = editTextAge.getText().toString();
+        String color = editTextColor.getText().toString();
+        String hobby = editTextHobby.getText().toString();
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> user = new HashMap<String, Object>();
+        user.put(AGE_KEY, age);
+        user.put(COLOR_KEY, color);
+        user.put(HOBBY_KEY, hobby);
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("ProfileCreation", "Error adding document", e);
+                    }
+                });;
+
+
+        startActivity(game);
+        finish();
     }
 
 
