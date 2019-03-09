@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,6 +30,8 @@ import java.util.Map;
 
 public class ProfileCreation extends AppCompatActivity {
 
+    private FirebaseAuth mAuth;
+
     GoogleSignInClient mGoogleSignInClient;
     final String AGE_KEY = "AGE";
     final String COLOR_KEY = "COLOR";
@@ -39,6 +43,7 @@ public class ProfileCreation extends AppCompatActivity {
         setContentView(R.layout.activity_profile_creation);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        final Intent game = new Intent(this, MainGame.class);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -47,7 +52,49 @@ public class ProfileCreation extends AppCompatActivity {
 
 
 
+        mAuth = FirebaseAuth.getInstance();
 
+        Button submitButton = findViewById(R.id.submitButton);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
+                EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
+                EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
+
+
+
+                String age = editTextAge.getText().toString();
+                String color = editTextColor.getText().toString();
+                String hobby = editTextHobby.getText().toString();
+
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> user = new HashMap<String, Object>();
+                user.put(AGE_KEY, age);
+                user.put(COLOR_KEY, color);
+                user.put(HOBBY_KEY, hobby);
+                db.collection("users")
+                        .add(user)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("ProfileCreation", "Error adding document", e);
+                            }
+                        });;
+
+
+                startActivity(game);
+                finish();
+            }
+        });
 
 
     }
@@ -77,39 +124,8 @@ public class ProfileCreation extends AppCompatActivity {
         //update database with the user's answers
         //navigate to "game" activity
 
-        final Intent game = new Intent(this, MainGame.class);
 
-        findViewById(R.id.submitButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int age = Integer.parseInt(((TextView)findViewById(R.id.textViewAge)).getText().toString());
-                String color = ((TextView)findViewById(R.id.textViewColor)).getText().toString();
-                String hobby = ((TextView)findViewById(R.id.textViewHobby)).getText().toString();
 
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                Map<String, Object> user = new HashMap<String, Object>();
-                user.put(AGE_KEY, age);
-                user.put(COLOR_KEY, color);
-                user.put(HOBBY_KEY, hobby);
-                db.collection("users")
-                        .add(user)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w("ProfileCreation", "Error adding document", e);
-                            }
-                        });;
-
-                startActivity(game);
-                finish();
-            }
-        });
     }
 
     @Override
@@ -134,7 +150,7 @@ public class ProfileCreation extends AppCompatActivity {
         }
         else if (id == R.id.logout) {
             signOut();
-            FirebaseAuth.getInstance().signOut();
+            mAuth.signOut();
         }
 
         return super.onOptionsItemSelected(item);
