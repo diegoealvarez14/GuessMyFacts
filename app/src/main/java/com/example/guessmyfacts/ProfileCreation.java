@@ -54,6 +54,17 @@ public class ProfileCreation extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        Button updateButton = findViewById(R.id.updateButton);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
+
+            }
+        });
+
+
+
         Button submitButton = findViewById(R.id.submitButton);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
