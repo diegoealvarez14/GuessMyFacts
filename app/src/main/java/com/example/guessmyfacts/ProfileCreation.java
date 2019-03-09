@@ -58,7 +58,7 @@ public class ProfileCreation extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                
+
 
             }
         });
@@ -162,6 +162,9 @@ public class ProfileCreation extends AppCompatActivity {
         else if (id == R.id.logout) {
             signOut();
             mAuth.signOut();
+        }
+        else if (id == R.id.delete) {
+
         }
 
         return super.onOptionsItemSelected(item);
