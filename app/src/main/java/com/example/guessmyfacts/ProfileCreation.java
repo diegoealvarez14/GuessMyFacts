@@ -1,5 +1,6 @@
 package com.example.guessmyfacts;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,11 +33,12 @@ import java.util.Map;
 public class ProfileCreation extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    String email;
 
-    GoogleSignInClient mGoogleSignInClient;
-    final String AGE_KEY = "AGE";
-    final String COLOR_KEY = "COLOR";
-    final String HOBBY_KEY = "HOBBY";
+    public GoogleSignInClient mGoogleSignInClient;
+    public static String AGE_KEY = "AGE";
+    public static String COLOR_KEY = "COLOR";
+    public static String HOBBY_KEY = "HOBBY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +54,14 @@ public class ProfileCreation extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
 
-
         mAuth = FirebaseAuth.getInstance();
+        email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
         Button updateButton = findViewById(R.id.updateButton);
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                submit();
-
+                update();
             }
         });
 
@@ -97,11 +99,13 @@ public class ProfileCreation extends AppCompatActivity {
     }
 
 
-    private void submit(){
+    private void update(){
         final Intent game = new Intent(this, MainGame.class);
         EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
         EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
         EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
+
+
 
 
 
@@ -111,38 +115,80 @@ public class ProfileCreation extends AppCompatActivity {
 
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> user = new HashMap<String, Object>();
+        Map<String, Object> user = new HashMap<>();
+        user.put("email", email);
         user.put(AGE_KEY, age);
         user.put(COLOR_KEY, color);
         user.put(HOBBY_KEY, hobby);
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        db.collection("users").document(email).update(user);
+
+        startActivity(game);
+//        finish();
+    }
+
+
+    private void submit(){
+        final Intent game = new Intent(this, MainGame.class);
+        EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
+        EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
+        EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
+
+
+
+
+        String age = editTextAge.getText().toString();
+        String color = editTextColor.getText().toString();
+        String hobby = editTextHobby.getText().toString();
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> user = new HashMap<>();
+        user.put("email", email);
+        user.put(AGE_KEY, age);
+        user.put(COLOR_KEY, color);
+        user.put(HOBBY_KEY, hobby);
+
+        db.collection("users").document(email).set(user)
+                .addOnSuccessListener(new OnSuccessListener < Void > () {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    public void onSuccess(Void aVoid) {
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("ProfileCreation", "Error adding document", e);
+
+                        Log.d("TAG", e.toString());
                     }
-                });;
+                });
+
+//        db.collection("users")
+//                .add(user)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//
+//                        userProfileObject = documentReference.getId();
+//                        prof.setUserProfileObject(userProfileObject);
+//
+//                        Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w("ProfileCreation", "Error adding document", e);
+//                    }
+//                });;
 
 
         startActivity(game);
-        finish();
+//        finish();
     }
 
 
-    protected void submitQuestionnaire(View view){
-        //update database with the user's answers
-        //navigate to "game" activity
 
-
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,7 +215,8 @@ public class ProfileCreation extends AppCompatActivity {
             mAuth.signOut();
         }
         else if (id == R.id.delete) {
-
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(email).delete();
         }
 
         return super.onOptionsItemSelected(item);
