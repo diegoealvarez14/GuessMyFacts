@@ -1,10 +1,13 @@
 package com.example.guessmyfacts;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +40,8 @@ public class ProfileCreation extends AppCompatActivity {
     final String AGE_KEY = "AGE";
     final String COLOR_KEY = "COLOR";
     final String HOBBY_KEY = "HOBBY";
+    final String PHOTO_KEY = "PROFILE-PIC";
+    String photoURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +102,30 @@ public class ProfileCreation extends AppCompatActivity {
                 });
     }
 
+    public void clickPhoto(android.view.View view){
+        dispatchTakePictureIntent();
+    }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap bitmap = (Bitmap) extras.get("data");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            photoURL = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            //imageView.setImageBitmap(imageBitmap);
+        }
+    }
 
     private void submit(){
         final Intent game = new Intent(this, MainGame.class);
@@ -115,6 +145,7 @@ public class ProfileCreation extends AppCompatActivity {
         user.put(AGE_KEY, age);
         user.put(COLOR_KEY, color);
         user.put(HOBBY_KEY, hobby);
+        user.put(PHOTO_KEY, photoURL);
         db.collection("users")
                 .add(user)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
