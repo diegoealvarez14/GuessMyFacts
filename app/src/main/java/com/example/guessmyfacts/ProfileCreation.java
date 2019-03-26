@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -24,7 +26,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
@@ -35,13 +39,21 @@ import java.util.Map;
 public class ProfileCreation extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    String email;
 
     GoogleSignInClient mGoogleSignInClient;
+    DocumentReference docRef;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     final String AGE_KEY = "AGE";
     final String COLOR_KEY = "COLOR";
     final String HOBBY_KEY = "HOBBY";
     final String PHOTO_KEY = "PROFILE-PIC";
     String photoURL;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+
+
+    private boolean docExists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,26 +68,55 @@ public class ProfileCreation extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-
+        final Button updateButton = findViewById(R.id.updateButton);
+        final Button submitButton = findViewById(R.id.submitButton);
+        final Button imageButton = findViewById(R.id.cameraButton);
 
         mAuth = FirebaseAuth.getInstance();
+        email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
-        Button updateButton = findViewById(R.id.updateButton);
-        updateButton.setOnClickListener(new View.OnClickListener() {
+        docRef = db.collection("users").document(email);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onClick(View view) {
-                submit();
-
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        docExists = true;
+                    } else {
+                        docExists = false;
+                    }
+                } else {
+                    Log.d("Tag", "get failed with ", task.getException());
+                }
             }
         });
 
 
 
-        Button submitButton = findViewById(R.id.submitButton);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                update();
+            }
+        });
+
+
+
+
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 submit();
+            }
+        });
+
+
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickPhoto();
             }
         });
 
@@ -86,6 +127,9 @@ public class ProfileCreation extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
+//        if(docExists) {
+//
+//        }
         //profile creation page should be displayed when the user logs in for the first time
         //add code here to navigate away to game activity directly if this is not the first time the user is logging in
     }
@@ -102,11 +146,19 @@ public class ProfileCreation extends AppCompatActivity {
                 });
     }
 
-    public void clickPhoto(android.view.View view){
+    public void clickPhoto(){
+        final Button updateButton = findViewById(R.id.updateButton);
+        final Button submitButton = findViewById(R.id.submitButton);
         dispatchTakePictureIntent();
+        if(docExists) {
+            updateButton.setVisibility(View.VISIBLE);
+        }
+        else {
+            submitButton.setVisibility(View.VISIBLE);
+        }
     }
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -127,53 +179,63 @@ public class ProfileCreation extends AppCompatActivity {
         }
     }
 
+
+    private void update(){
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
+        EditText editTextAge = findViewById(R.id.editTextAge);
+        EditText editTextColor = findViewById(R.id.editTextColor);
+        EditText editTextHobby = findViewById(R.id.editTextHobby);
+
+        String age = editTextAge.getText().toString();
+        String color = editTextColor.getText().toString();
+        String hobby = editTextHobby.getText().toString();
+
+        Map<String, Object> user = new HashMap<>();
+        user.put(AGE_KEY, age);
+        user.put(COLOR_KEY, color);
+        user.put(HOBBY_KEY, hobby);
+        user.put(PHOTO_KEY, photoURL);
+
+        db.collection("users").document(email).update(user);
+        startActivity(homeScreen);
+    }
+
     private void submit(){
-        final Intent game = new Intent(this, MainGame.class);
-        EditText editTextAge = (EditText) findViewById(R.id.editTextAge);
-        EditText editTextColor = (EditText) findViewById(R.id.editTextColor);
-        EditText editTextHobby = (EditText) findViewById(R.id.editTextHobby);
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
 
-
+        EditText editTextAge = findViewById(R.id.editTextAge);
+        EditText editTextColor = findViewById(R.id.editTextColor);
+        EditText editTextHobby = findViewById(R.id.editTextHobby);
 
         String age = editTextAge.getText().toString();
         String color = editTextColor.getText().toString();
         String hobby = editTextHobby.getText().toString();
 
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> user = new HashMap<String, Object>();
+
+        Map<String, Object> user = new HashMap<>();
         user.put(AGE_KEY, age);
         user.put(COLOR_KEY, color);
         user.put(HOBBY_KEY, hobby);
         user.put(PHOTO_KEY, photoURL);
-        db.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("ProfileCreation", "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("ProfileCreation", "Error adding document", e);
-                    }
-                });;
 
-
-        startActivity(game);
-        finish();
+        db.collection("users").document(email).set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(ProfileCreation.this, "Profile Submission Successful!", Toast.LENGTH_SHORT).show();
+                        startActivity(homeScreen);
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ProfileCreation.this, "Failed Getting Document", Toast.LENGTH_LONG).show();
+                Log.d("Tag", e.toString());
+            }
+        });
     }
 
-
-    protected void submitQuestionnaire(View view){
-        //update database with the user's answers
-        //navigate to "game" activity
-
-
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -191,8 +253,6 @@ public class ProfileCreation extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
-
             return true;
         }
         else if (id == R.id.logout) {
@@ -200,7 +260,7 @@ public class ProfileCreation extends AppCompatActivity {
             mAuth.signOut();
         }
         else if (id == R.id.delete) {
-
+            db.collection("users").document(email).delete();
         }
 
         return super.onOptionsItemSelected(item);

@@ -12,5 +12,6 @@
     <string name="delete_text">Delete Info</string>
     <string name="profile_creation_submit">Submit</string>
     <string name="title_activity_main_game">MainGame</string>
+    <string name="title_activity_home_screen">HomeScreen</string>
     title_activity_profile_creation
 </resources>
