@@ -50,42 +50,70 @@ public class MainGame extends AppCompatActivity {
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        final TextView tAge = findViewById(R.id.gameAge);
-        final TextView tHobby = findViewById(R.id.gameHobby);
-        final TextView tColor = findViewById(R.id.gameColor);
+//        final TextView tAge = findViewById(R.id.gameAge);
+//        final TextView tHobby = findViewById(R.id.gameHobby);
+//        final TextView tColor = findViewById(R.id.gameColor);
 
         DocumentReference docRef = db.collection("users").document(email);
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Map<String, Object> a = document.getData();
-                        String age = a.get("AGE").toString();
-                        Log.d("MainGame", "Age: " + age);
-                        String color = a.get("COLOR").toString();
-                        Log.d("MainGame", "Color: " + color);
-                        String hobby = a.get("HOBBY").toString();
-                        Log.d("MainGame", "Hobby: " + hobby);
-                        tAge.setText(age);
-                        tColor.setText(color);
-                        tHobby.setText(hobby);
-                    } else {
-                        Log.d("MainGame", "No such document");
-                    }
-                } else {
-                    Log.d("MainGame", "get failed with ", task.getException());
-                }
-            }
-        });
+//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        Map<String, Object> a = document.getData();
+//                        String age = a.get("AGE").toString();
+//                        Log.d("MainGame", "Age: " + age);
+//                        String color = a.get("COLOR").toString();
+//                        Log.d("MainGame", "Color: " + color);
+//                        String hobby = a.get("HOBBY").toString();
+//                        Log.d("MainGame", "Hobby: " + hobby);
+//                        tAge.setText(age);
+//                        tColor.setText(color);
+//                        tHobby.setText(hobby);
+//                    } else {
+//                        Log.d("MainGame", "No such document");
+//                    }
+//                } else {
+//                    Log.d("MainGame", "get failed with ", task.getException());
+//                }
+//            }
+//        });
 
 
 
 
 
     }
+
+
+
+
+
+//    private void setPic() {
+//        // Get the dimensions of the View
+//        int targetW = imageView.getWidth();
+//        int targetH = imageView.getHeight();
+//
+//        // Get the dimensions of the bitmap
+//        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+//        bmOptions.inJustDecodeBounds = true;
+//        BitmapFactory.decodeFile(currentPhotoPath, boptions);
+//        int photoW = bmOptions.outWidth;
+//        int photoH = bmOptions.outHeight;
+//
+//        // Determine how much to scale down the image
+//        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+//
+//        // Decode the image file into a Bitmap sized to fill the View
+//        bmOptions.inJustDecodeBounds = false;
+//        bmOptions.inSampleSize = scaleFactor;
+//        bmOptions.inPurgeable = true;
+//
+//        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, boptions);
+//        imageView.setImageBitmap(bitmap);
+//    }
 
     private void signOut() {
         final Intent login = new Intent(this, Login.class);

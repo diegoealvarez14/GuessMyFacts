@@ -2,10 +2,15 @@ package com.example.guessmyfacts;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -19,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,8 +36,15 @@ import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +62,9 @@ public class ProfileCreation extends AppCompatActivity {
     final String HOBBY_KEY = "HOBBY";
     final String PHOTO_KEY = "PROFILE-PIC";
     String photoURL;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    String id;
+
+    File image = null;
 
 
 
@@ -74,6 +89,8 @@ public class ProfileCreation extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        id = acct.getId();
 
         docRef = db.collection("users").document(email);
 
@@ -117,6 +134,7 @@ public class ProfileCreation extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 clickPhoto();
+//                imageButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -150,6 +168,10 @@ public class ProfileCreation extends AppCompatActivity {
         final Button updateButton = findViewById(R.id.updateButton);
         final Button submitButton = findViewById(R.id.submitButton);
         dispatchTakePictureIntent();
+//        galleryAddPic();
+//        uploadPictureToFirebase();
+
+//        TODO: JUST SET THE BUTTON CLICKABLE AFTER PHOTO IS TAKEN
         if(docExists) {
             updateButton.setVisibility(View.VISIBLE);
         }
@@ -158,7 +180,99 @@ public class ProfileCreation extends AppCompatActivity {
         }
     }
 
+//    private void uploadPictureToFirebase() {
+//        FirebaseStorage storage = FirebaseStorage.getInstance();
+//        // Create a storage reference from our app
+//        StorageReference storageRef = storage.getReference();
+//
+//        // Create a reference to "mountains.jpg"
+//        StorageReference userRef = storageRef.child(id + ".jpg");
+//
+//        // Create a reference to 'images/mountains.jpg'
+//        StorageReference userImagesRef = storageRef.child("images/" + id + ".jpg");
+//
+//        // While the file names are the same, the references point to different files
+//        userRef.getName().equals(userImagesRef.getName());    // true
+//        userRef.getPath().equals(userImagesRef.getPath());    // false
+//
+//
+//
+//        Uri file = Uri.fromFile(image);
+//        StorageReference riversRef = storageRef.child("images/"+file.getLastPathSegment());
+//        UploadTask uploadTask = riversRef.putFile(file);
+//
+//        // Register observers to listen for when the download is done or if it fails
+//        uploadTask.addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception exception) {
+//                Toast.makeText(ProfileCreation.this, "Error Getting File From Local Storage", Toast.LENGTH_SHORT).show();
+//            }
+//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+//                Toast.makeText(ProfileCreation.this, "Successfully Uploaded Image from Local Storage", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//    }
 
+
+//    static final int REQUEST_TAKE_PHOTO = 1;
+//
+//    private void dispatchTakePictureIntent() {
+//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        // Ensure that there's a camera activity to handle the intent
+//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//            // Create the File where the photo should go
+//            File photoFile = null;
+//            try {
+//                photoFile = createImageFile();
+//            } catch (IOException ex) {
+//                Log.d("Tag", "Failure Creating Image File Path ", ex);
+//            }
+//            // Continue only if the File was successfully created
+//            if (photoFile != null) {
+//                image = photoFile;
+//                Uri photoURI = FileProvider.getUriForFile(this,
+//                        "com.example.android.fileprovider",
+//                        photoFile);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+//            }
+//        }
+//    }
+
+
+
+//    private static  String currentPhotoPath;
+//
+//    private File createImageFile() throws IOException {
+//        // Create an image file name
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(
+//                imageFileName,  /* prefix */
+//                ".jpg",         /* suffix */
+//                storageDir      /* directory */
+//        );
+//
+//        // Save a file: path for use with ACTION_VIEW intents
+//        currentPhotoPath = image.getAbsolutePath();
+//        return image;
+//    }
+
+
+//    private void galleryAddPic() {
+//        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+//        File f = new File(currentPhotoPath);
+//        Uri contentUri = Uri.fromFile(f);
+//        mediaScanIntent.setData(contentUri);
+//        this.sendBroadcast(mediaScanIntent);
+//    }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -167,13 +281,16 @@ public class ProfileCreation extends AppCompatActivity {
         }
     }
 
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap bitmap = (Bitmap) extras.get("data");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             photoURL = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
             //imageView.setImageBitmap(imageBitmap);
         }
