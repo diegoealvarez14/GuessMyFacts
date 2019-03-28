@@ -1,17 +1,21 @@
 package com.example.guessmyfacts;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +28,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 public class MainGame extends AppCompatActivity {
 
@@ -35,8 +42,10 @@ public class MainGame extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String email;
+     //ArrayList<String> ids;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_game);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -82,8 +91,55 @@ public class MainGame extends AppCompatActivity {
 //        });
 
 
+        //veda's changes
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    ArrayList<User> ids = new ArrayList<>();
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("doc :", document.getId() + " => " + document.getData());
+                                Map<String, Object> map = document.getData();
+                                User u = new User(document.getId(),map.get("AGE").toString(),
+                                        map.get("COLOR").toString(),
+                                        map.get("HOBBY").toString(),
+                                        map.get("PROFILE-PIC").toString());
+                                ids.add(u);
+                            }
+                            processdata(ids);
+                        } else {
+                            Log.d("error", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
 
 
+    public void processdata(ArrayList<User> ids){
+
+        int size = ids.size();
+        Random rand = new Random();
+        User guessCandidate;
+        while(true){
+            int index = rand.nextInt(size);
+            guessCandidate = ids.get(index);
+            if(!guessCandidate.email.equals(email))
+                break;
+        }
+        ImageView image = findViewById(R.id.imageView);
+        byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
+        Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+        image.setImageBitmap(decodedImage);
+        return;
+
+    }
+
+    public void seeResults(View view){
+        //get value from edittexts
+        //start new activity
 
     }
 
