@@ -212,9 +212,13 @@ public class MainGame extends AppCompatActivity {
             byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
             Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             image.setImageBitmap(decodedImage);
-            ((TextView)findViewById(R.id.result1)).setText(Integer.toString(guessCandidate.age));
-            ((TextView)findViewById(R.id.result2)).setText(guessCandidate.color);
-            ((TextView)findViewById(R.id.result3)).setText(guessCandidate.hobby);
+            TextView actualAge = findViewById(R.id.result1);
+            TextView actualColor = findViewById(R.id.result2);
+            TextView actualHobby = findViewById(R.id.result3);
+            actualAge.setText(Integer.toString(guessCandidate.age));
+            actualColor.setText(guessCandidate.color);
+            actualHobby.setText(guessCandidate.hobby);
+
             findViewById(R.id.editText).setVisibility(View.VISIBLE);
             ((EditText)findViewById(R.id.editText)).getText().clear();
             findViewById(R.id.editText2).setVisibility(View.VISIBLE);
@@ -223,9 +227,9 @@ public class MainGame extends AppCompatActivity {
             ((EditText)findViewById(R.id.editText3)).getText().clear();
             findViewById(R.id.resultsButton).setVisibility(View.VISIBLE);
 
-            findViewById(R.id.result1).setVisibility(View.INVISIBLE);
-            findViewById(R.id.result2).setVisibility(View.INVISIBLE);
-            findViewById(R.id.result3).setVisibility(View.INVISIBLE);
+            actualAge.setVisibility(View.INVISIBLE);
+            actualColor.setVisibility(View.INVISIBLE);
+            actualHobby.setVisibility(View.INVISIBLE);
             findViewById(R.id.nextButton).setVisibility(View.INVISIBLE);
         } else {
             // Null Candidate Means No More Users in Database to Guess
