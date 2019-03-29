@@ -18,6 +18,7 @@
         <activity
             android:name=".Stats"
             android:label="@string/title_activity_stats"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainGame"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -38,10 +39,12 @@
         <activity
             android:name=".HomeScreen"
             android:label="@string/title_activity_home_screen"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainGame"
             android:label="@string/title_activity_main_game"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Login"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -51,10 +54,12 @@
         <activity
             android:name=".ProfileCreation"
             android:label="@string/title_activity_profile_creation"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Login"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
