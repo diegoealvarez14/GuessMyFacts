@@ -53,8 +53,8 @@ public class MainGame extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String email;
     User guessCandidate;
-    static Queue<User> candidates = new LinkedList<User>();
-    static HashSet<String> usedCandidates = new HashSet<String>();
+    static Queue<User> candidates;
+    static HashSet<String> usedCandidates;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -71,11 +71,15 @@ public class MainGame extends AppCompatActivity {
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+
+        candidates = new LinkedList<>();
+        usedCandidates = new HashSet<>();
+
 //        final TextView tAge = findViewById(R.id.gameAge);
 //        final TextView tHobby = findViewById(R.id.gameHobby);
 //        final TextView tColor = findViewById(R.id.gameColor);
 
-        DocumentReference docRef = db.collection("users").document(email);
+//        DocumentReference docRef = db.collection("users").document(email);
 
 //        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //            @Override
@@ -103,6 +107,14 @@ public class MainGame extends AppCompatActivity {
 //        });
         refillCandidates();
     }
+
+
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        refillCandidates();
+//    }
 
     public void refillCandidates() {
         // TODO IF Candidates is Empty, Create List of 10? Unused Candidates (I Think this works now)
