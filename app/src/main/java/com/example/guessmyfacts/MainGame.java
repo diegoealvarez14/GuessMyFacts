@@ -53,8 +53,8 @@ public class MainGame extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String email;
     User guessCandidate;
-    static Queue<User> candidates = new LinkedList<User>();
-    static HashSet<String> usedCandidates = new HashSet<String>();
+    static Queue<User> candidates;
+    static HashSet<String> usedCandidates;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -70,11 +70,15 @@ public class MainGame extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
+
+        candidates = new LinkedList<>();
+        usedCandidates = new HashSet<>();
+
 //        final TextView tAge = findViewById(R.id.gameAge);
 //        final TextView tHobby = findViewById(R.id.gameHobby);
 //        final TextView tColor = findViewById(R.id.gameColor);
 
-        DocumentReference docRef = db.collection("users").document(email);
+//        DocumentReference docRef = db.collection("users").document(email);
 
 //        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //            @Override
@@ -102,6 +106,14 @@ public class MainGame extends AppCompatActivity {
 //        });
         refillCandidates();
     }
+
+
+
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        refillCandidates();
+//    }
 
     public void refillCandidates() {
         // TODO IF Candidates is Empty, Create List of 10? Unused Candidates (I Think this works now)
@@ -211,9 +223,13 @@ public class MainGame extends AppCompatActivity {
             byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
             Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             image.setImageBitmap(decodedImage);
-            ((TextView)findViewById(R.id.result1)).setText(Integer.toString(guessCandidate.age));
-            ((TextView)findViewById(R.id.result2)).setText(guessCandidate.color);
-            ((TextView)findViewById(R.id.result3)).setText(guessCandidate.hobby);
+            TextView actualAge = findViewById(R.id.result1);
+            TextView actualColor = findViewById(R.id.result2);
+            TextView actualHobby = findViewById(R.id.result3);
+            actualAge.setText(Integer.toString(guessCandidate.age));
+            actualColor.setText(guessCandidate.color);
+            actualHobby.setText(guessCandidate.hobby);
+
             findViewById(R.id.editText).setVisibility(View.VISIBLE);
             ((EditText)findViewById(R.id.editText)).getText().clear();
             findViewById(R.id.editText2).setVisibility(View.VISIBLE);
@@ -222,9 +238,9 @@ public class MainGame extends AppCompatActivity {
             ((EditText)findViewById(R.id.editText3)).getText().clear();
             findViewById(R.id.resultsButton).setVisibility(View.VISIBLE);
 
-            findViewById(R.id.result1).setVisibility(View.INVISIBLE);
-            findViewById(R.id.result2).setVisibility(View.INVISIBLE);
-            findViewById(R.id.result3).setVisibility(View.INVISIBLE);
+            actualAge.setVisibility(View.INVISIBLE);
+            actualColor.setVisibility(View.INVISIBLE);
+            actualHobby.setVisibility(View.INVISIBLE);
             findViewById(R.id.nextButton).setVisibility(View.INVISIBLE);
         } else {
             // Null Candidate Means No More Users in Database to Guess
@@ -265,6 +281,7 @@ public class MainGame extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        mAuth.signOut();
                         startActivity(login);
                         finish();
                     }
@@ -285,13 +302,8 @@ public class MainGame extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            //Intent settings = new Intent(this, Settings.class);
-            //startActivity(settings);
-            finish();
-        }
-        else if (id == R.id.logout) {
+
+        if (id == R.id.logout) {
             signOut();
             mAuth.signOut();
         } else if (id == R.id.stats) {
@@ -299,9 +311,11 @@ public class MainGame extends AppCompatActivity {
             startActivity(stats);
             finish();
         }
-//        else if (id == R.id.delete) {
-//            db.collection("users").document(email).delete();
-//        }
+        else if (id == R.id.updateProfile) {
+            Intent updateProfile = new Intent(this, ProfileCreation.class);
+            startActivity(updateProfile);
+            finish();
+        }
 
         return super.onOptionsItemSelected(item);
     }
