@@ -266,6 +266,7 @@ public class MainGame extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        mAuth.signOut();
                         startActivity(login);
                         finish();
                     }
@@ -289,7 +290,6 @@ public class MainGame extends AppCompatActivity {
 
         if (id == R.id.logout) {
             signOut();
-            mAuth.signOut();
         }
         else if (id == R.id.updateProfile) {
             Intent updateProfile = new Intent(this, ProfileCreation.class);

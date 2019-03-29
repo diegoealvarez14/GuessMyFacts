@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
     String email = null;
     DocumentReference docRef;
 
-    private static Login instance;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class Login extends AppCompatActivity {
         setSupportActionBar(toolbar);
         String googleClientId = "323298096137-07rpp84in54op1k7ctcfekml9qcqj8bl.apps.googleusercontent.com";
 
-        Login.instance = this;
+
 
         mAuth = FirebaseAuth.getInstance();
         // Configure sign-in to request the user's ID, email address, and basic profile. ID and
@@ -72,19 +72,24 @@ public class Login extends AppCompatActivity {
                 signIn();
             }
         });
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        redirectToCorrectPage();
+
+    }
+
+
+    public void redirectToCorrectPage() {
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        final Intent profileCreation = new Intent(this, ProfileCreation.class);
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (account != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -98,11 +103,9 @@ public class Login extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
-                                Intent mainGame = new Intent(Login.instance, MainGame.class);
-                                startActivity(mainGame);
+                                startActivity(homeScreen);
                                 finish();
                             } else {
-                                Intent profileCreation = new Intent(Login.instance, ProfileCreation.class);
                                 startActivity(profileCreation);
                                 finish();
                             }
@@ -111,31 +114,10 @@ public class Login extends AppCompatActivity {
                         }
                     }
                 });
-//                db.collection("users").document(email).get()
-//                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                                if (task.isSuccessful()) {
-//                                    DocumentSnapshot user = task.getResult();
-//                                    if(user != null) {
-//                                        // Go to Main Game if Account Exists
-//                                        Intent mainGame = new Intent(Login.instance, MainGame.class);
-//                                        startActivity(mainGame);
-//                                        finish();
-//                                    } else {
-//                                        // TODO: Account DNE or Wasn't Completed?
-//                                    }
-//                                } else {
-//                                    Log.d("error", "Error getting document: ", task.getException());
-//                                }
-//                            }
-//                        });
+
             }
-//            // TODO: Replace With Filler Activity until Firestore query finishes
-//            Intent profileCreation = new Intent(this, ProfileCreation.class);
-//            startActivity(profileCreation);
-//            finish();
         }
+
     }
 
     private void signIn() {
@@ -164,9 +146,7 @@ public class Login extends AppCompatActivity {
             // Signed in successfully, show authenticated UI.K
             Toast.makeText(this, "Sign In Successful!",
                     Toast.LENGTH_LONG).show();
-            Intent profileCreation = new Intent(this, ProfileCreation.class);
-            startActivity(profileCreation);
-            finish();
+            redirectToCorrectPage();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
