@@ -368,18 +368,15 @@ public class ProfileCreation extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            //Intent settings = new Intent(this, Settings.class);
-            //startActivity(settings);
-            finish();
-        }
-        else if (id == R.id.logout) {
+
+        if (id == R.id.logout) {
             signOut();
             mAuth.signOut();
         }
-        else if (id == R.id.delete) {
-            db.collection("users").document(email).delete();
+        else if (id == R.id.updateProfile) {
+            Intent updateProfile = new Intent(this, ProfileCreation.class);
+            startActivity(updateProfile);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

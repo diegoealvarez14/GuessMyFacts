@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -41,6 +42,8 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static boolean accountExists = false;
     private static boolean accountLock = true;
+    String email = null;
+    DocumentReference docRef;
 
     private static Login instance;
 
@@ -86,30 +89,52 @@ public class Login extends AppCompatActivity {
         if (account != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             if(account.getEmail() != null) {
-                db.collection("users").document(account.getEmail()).get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot user = task.getResult();
-                                    if(user != null) {
-                                        // Go to Main Game if Account Exists
-                                        Intent mainGame = new Intent(Login.instance, MainGame.class);
-                                        startActivity(mainGame);
-                                        finish();
-                                    } else {
-                                        // TODO: Account DNE or Wasn't Completed?
-                                    }
-                                } else {
-                                    Log.d("error", "Error getting document: ", task.getException());
-                                }
+                email = account.getEmail();
+                docRef = db.collection("users").document(email);
+
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Intent mainGame = new Intent(Login.instance, MainGame.class);
+                                startActivity(mainGame);
+                                finish();
+                            } else {
+                                Intent profileCreation = new Intent(Login.instance, ProfileCreation.class);
+                                startActivity(profileCreation);
+                                finish();
                             }
-                        });
+                        } else {
+                            Log.d("Tag", "get failed with ", task.getException());
+                        }
+                    }
+                });
+//                db.collection("users").document(email).get()
+//                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                if (task.isSuccessful()) {
+//                                    DocumentSnapshot user = task.getResult();
+//                                    if(user != null) {
+//                                        // Go to Main Game if Account Exists
+//                                        Intent mainGame = new Intent(Login.instance, MainGame.class);
+//                                        startActivity(mainGame);
+//                                        finish();
+//                                    } else {
+//                                        // TODO: Account DNE or Wasn't Completed?
+//                                    }
+//                                } else {
+//                                    Log.d("error", "Error getting document: ", task.getException());
+//                                }
+//                            }
+//                        });
             }
-            // TODO: Replace With Filler Activity until Firestore query finishes
-            Intent profileCreation = new Intent(this, ProfileCreation.class);
-            startActivity(profileCreation);
-            finish();
+//            // TODO: Replace With Filler Activity until Firestore query finishes
+//            Intent profileCreation = new Intent(this, ProfileCreation.class);
+//            startActivity(profileCreation);
+//            finish();
         }
     }
 

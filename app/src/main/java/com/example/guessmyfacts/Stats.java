@@ -15,8 +15,6 @@ public class Stats extends AppCompatActivity {
         setContentView(R.layout.activity_stats);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
