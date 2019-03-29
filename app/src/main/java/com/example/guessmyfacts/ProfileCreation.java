@@ -380,6 +380,10 @@ public class ProfileCreation extends AppCompatActivity {
         }
         else if (id == R.id.delete) {
             db.collection("users").document(email).delete();
+        } else if (id == R.id.stats) {
+            Intent stats = new Intent(this, Stats.class);
+            startActivity(stats);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

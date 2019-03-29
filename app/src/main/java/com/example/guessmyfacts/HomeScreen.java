@@ -91,6 +91,10 @@ public class HomeScreen extends AppCompatActivity {
         else if (id == R.id.logout) {
             signOut();
             mAuth.signOut();
+        } else if (id == R.id.stats) {
+            Intent stats = new Intent(this, Stats.class);
+            startActivity(stats);
+            finish();
         }
 //        else if (id == R.id.delete) {
 //            db.collection("users").document(email).delete();

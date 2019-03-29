@@ -6,6 +6,27 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Stats"
+    tools:layout_editor_absoluteY="56dp"
     tools:showIn="@layout/activity_stats">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="338dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="16dp"
+        android:text="Age"
+        android:textSize="30sp"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="@+id/AgeChart"
+        tools:layout_editor_absoluteX="36dp" />
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/AgeChart"
+        android:layout_width="match_parent"
+        android:layout_height="579dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></com.github.mikephil.charting.charts.PieChart>
 
 </android.support.constraint.ConstraintLayout>

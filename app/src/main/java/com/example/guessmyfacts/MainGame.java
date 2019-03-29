@@ -69,7 +69,6 @@ public class MainGame extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 //        final TextView tAge = findViewById(R.id.gameAge);
 //        final TextView tHobby = findViewById(R.id.gameHobby);
@@ -295,6 +294,10 @@ public class MainGame extends AppCompatActivity {
         else if (id == R.id.logout) {
             signOut();
             mAuth.signOut();
+        } else if (id == R.id.stats) {
+            Intent stats = new Intent(this, Stats.class);
+            startActivity(stats);
+            finish();
         }
 //        else if (id == R.id.delete) {
 //            db.collection("users").document(email).delete();
