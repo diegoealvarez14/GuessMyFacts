@@ -25,6 +25,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class Login extends AppCompatActivity {
 
@@ -32,6 +39,10 @@ public class Login extends AppCompatActivity {
     private static final int RC_SIGN_IN = 1795;
     private static final String TAG = Login.class.getSimpleName();
     private FirebaseAuth mAuth;
+    private static boolean accountExists = false;
+    private static boolean accountLock = true;
+
+    private static Login instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +51,8 @@ public class Login extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         String googleClientId = "323298096137-07rpp84in54op1k7ctcfekml9qcqj8bl.apps.googleusercontent.com";
+
+        Login.instance = this;
 
         mAuth = FirebaseAuth.getInstance();
         // Configure sign-in to request the user's ID, email address, and basic profile. ID and
@@ -50,7 +63,6 @@ public class Login extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,13 +70,8 @@ public class Login extends AppCompatActivity {
             }
         });
 
-
-
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
-
-
     }
 
     @Override
@@ -75,7 +82,31 @@ public class Login extends AppCompatActivity {
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
         if (account != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            if(account.getEmail() != null) {
+                db.collection("users").document(account.getEmail()).get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot user = task.getResult();
+                                    if(user != null) {
+                                        // Go to Main Game if Account Exists
+                                        Intent mainGame = new Intent(Login.instance, MainGame.class);
+                                        startActivity(mainGame);
+                                        finish();
+                                    } else {
+                                        // TODO: Account DNE or Wasn't Completed?
+                                    }
+                                } else {
+                                    Log.d("error", "Error getting document: ", task.getException());
+                                }
+                            }
+                        });
+            }
+            // TODO: Replace With Filler Activity until Firestore query finishes
             Intent profileCreation = new Intent(this, ProfileCreation.class);
             startActivity(profileCreation);
             finish();

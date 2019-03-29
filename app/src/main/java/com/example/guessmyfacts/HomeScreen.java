@@ -83,7 +83,10 @@ public class HomeScreen extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            //TODO
+            //Intent settings = new Intent(this, Settings.class);
+            //startActivity(settings);
+            //finish();
         }
         else if (id == R.id.logout) {
             signOut();

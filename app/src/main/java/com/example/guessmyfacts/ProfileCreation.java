@@ -111,7 +111,7 @@ public class ProfileCreation extends AppCompatActivity {
         });
 
 
-
+        //TODO Set this in content_profile_creation.xml
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,7 +121,7 @@ public class ProfileCreation extends AppCompatActivity {
 
 
 
-
+        //TODO Set this in content_profile_creation.xml
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,7 +129,7 @@ public class ProfileCreation extends AppCompatActivity {
             }
         });
 
-
+        //TODO Set this in content_profile_creation.xml
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -370,7 +370,9 @@ public class ProfileCreation extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            //Intent settings = new Intent(this, Settings.class);
+            //startActivity(settings);
+            finish();
         }
         else if (id == R.id.logout) {
             signOut();

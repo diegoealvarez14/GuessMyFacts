@@ -2,11 +2,11 @@ package com.example.guessmyfacts;
 
 public class User {
     String email;
-    String age;
+    int age;
     String color;
     String hobby;
     String profile_pic;
-    public User(String email, String age, String color, String hobby, String profile_pic){
+    public User(String email, int age, String color, String hobby, String profile_pic){
         this.email = email;
         this.age=age;
         this.color = color;
