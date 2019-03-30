@@ -118,17 +118,66 @@ public class Stats extends AppCompatActivity {
                             ageChart.setData(ageData);
                             ageChart.invalidate();
 
-                            ageChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                @Override
-                                public void onValueSelected(Entry e, Highlight h) {
+                            // Color
+                            PieChart colorChart = findViewById(R.id.ColorChart);
+                            colorChart.animateXY(800, 800);
+                            colorChart.setEntryLabelTextSize(36);
+                            colorChart.getDescription().setEnabled(false);
 
-                                }
+                            ArrayList<String> colors = new ArrayList<String>(colorMap.keySet());
+                            ArrayList<PieEntry> colorCounts = new ArrayList<PieEntry>();
+                            i = 0;
+                            for(Integer count : colorMap.values()) {
+                                colorCounts.add(new PieEntry(count, colors.get(i).toString()));
+                                i++;
+                            }
 
-                                @Override
-                                public void onNothingSelected() {
-                                    //TODO
-                                }
-                            });
+                            PieDataSet colorDataSet = new PieDataSet(colorCounts, "");
+                            colorDataSet.setDrawValues(false);
+                            colorDataSet.setSliceSpace(4);
+
+                            colorDataSet.setColors(pieChartColors);
+
+                            Legend colorLegend = colorChart.getLegend();
+                            colorLegend.setForm(Legend.LegendForm.CIRCLE);
+                            colorLegend.setTextSize(24);
+                            colorLegend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+                            colorLegend.setVerticalAlignment(Legend.LegendVerticalAlignment.CENTER);
+
+                            PieData colorData = new PieData(colorDataSet);
+                            colorChart.setData(colorData);
+                            colorChart.invalidate();
+
+                            //Hobby
+                            // Color
+                            PieChart hobbyChart = findViewById(R.id.HobbyChart);
+                            hobbyChart.animateXY(800, 800);
+                            //hobbyChart.setEntryLabelTextSize(36);
+                            hobbyChart.getDescription().setEnabled(false);
+
+                            ArrayList<String> hobbies = new ArrayList<String>(hobbyMap.keySet());
+                            ArrayList<PieEntry> hobbyCounts = new ArrayList<PieEntry>();
+                            i = 0;
+                            for(Integer count : hobbyMap.values()) {
+                                hobbyCounts.add(new PieEntry(count, hobbies.get(i).toString()));
+                                i++;
+                            }
+
+                            PieDataSet hobbyDataSet = new PieDataSet(hobbyCounts, "");
+                            hobbyDataSet.setDrawValues(false);
+                            hobbyDataSet.setSliceSpace(4);
+
+                            hobbyDataSet.setColors(pieChartColors);
+
+                            Legend hobbyLegend = hobbyChart.getLegend();
+                            hobbyLegend.setForm(Legend.LegendForm.CIRCLE);
+                            //hobbyLegend.setTextSize(14);
+                            hobbyLegend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+                            hobbyLegend.setVerticalAlignment(Legend.LegendVerticalAlignment.CENTER);
+
+                            PieData hobbyData = new PieData(hobbyDataSet);
+                            hobbyChart.setData(hobbyData);
+                            hobbyChart.invalidate();
                         }
                     });
         }

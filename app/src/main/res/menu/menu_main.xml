@@ -4,6 +4,7 @@
     tools:context="com.example.guessmyfacts.Login">
     <item
         android:title="@string/logout_text"
+        android:id="@+id/logout"
         app:showAsAction="never" />
     <item
         android:id="@+id/stats"
