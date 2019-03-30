@@ -318,6 +318,11 @@ public class ProfileCreation extends AppCompatActivity {
         startActivity(homeScreen);
     }
 
+    @Override
+    public void onBackPressed() {
+        //Do Nothing
+    }
+
     private void submit(){
         final Intent homeScreen = new Intent(this, HomeScreen.class);
 
@@ -359,6 +364,10 @@ public class ProfileCreation extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.updateProfile).setEnabled(false);
+        menu.findItem(R.id.updateProfile).setVisible(false);
+        menu.findItem(R.id.mainMenu).setEnabled(false);
+        menu.findItem(R.id.mainMenu).setVisible(false);
         return true;
     }
 
@@ -372,11 +381,12 @@ public class ProfileCreation extends AppCompatActivity {
 
         if (id == R.id.logout) {
             signOut();
-        }else if (id == R.id.updateProfile) {
-            Intent updateProfile = new Intent(this, ProfileCreation.class);
-            startActivity(updateProfile);
-            finish();
         }
+//        else if (id == R.id.updateProfile) {
+//            Intent updateProfile = new Intent(this, ProfileCreation.class);
+//            startActivity(updateProfile);
+//            finish();
+//        }
 
         return super.onOptionsItemSelected(item);
     }

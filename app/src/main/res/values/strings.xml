@@ -4,6 +4,8 @@
     <string name="Login">Sign In With Google</string>
     <string name="title">Guess My Facts!</string>
     <string name="logout_text">Log Out</string>
+    <string name="stats">View User Statistics</string>
+    <string name="mainMenu">Main Menu</string>
     <string name="title_activity_profile_creation">Profile</string>
     <string name="profile_creation_welcome_message">Welcome! Complete the questionnaire to proceed</string>
     <string name="enter_your_age">Enter your Age</string>

@@ -5,15 +5,18 @@
     <item
         android:title="@string/logout_text"
         android:id="@+id/logout"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/stats"
-        android:orderInCategory="200"
-        android:title="Stats"
+        android:orderInCategory="100"
         app:showAsAction="never" />
     <item
         android:id="@+id/updateProfile"
-        android:orderInCategory="300"
+        android:orderInCategory="200"
         android:title="@string/update_profile"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/mainMenu"
+        android:orderInCategory="300"
+        android:title="Main Menu"
+        app:showAsAction="never" />
+
+
 </menu>

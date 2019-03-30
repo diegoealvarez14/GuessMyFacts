@@ -1,13 +1,17 @@
 package com.example.guessmyfacts;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.github.mikephil.charting.charts.PieChart;
@@ -186,7 +190,66 @@ public class Stats extends AppCompatActivity {
 
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
+        startActivity(homeScreen);
+        finish();
+    }
+
+    private void signOut() {
+        final Intent login = new Intent(this, Login.class);
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mAuth.signOut();
+                        startActivity(login);
+                        finish();
+                    }
+                });
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.logout).setEnabled(false);
+        menu.findItem(R.id.logout).setVisible(false);
+        menu.findItem(R.id.updateProfile).setEnabled(false);
+        menu.findItem(R.id.updateProfile).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+
+        if (id == R.id.mainMenu) {
+            Intent homeScreen = new Intent(this, HomeScreen.class);
+            startActivity(homeScreen);
+            finish();
+        }
+
+//        if (id == R.id.logout) {
+//            signOut();
+//        }else if (id == R.id.updateProfile) {
+//            Intent updateProfile = new Intent(this, ProfileCreation.class);
+//            startActivity(updateProfile);
+//            finish();
+//        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

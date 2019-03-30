@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -63,6 +64,8 @@ public class MainGame extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -73,6 +76,14 @@ public class MainGame extends AppCompatActivity {
 
         candidates = new LinkedList<>();
         usedCandidates = new HashSet<>();
+        final Button mainMenu = findViewById(R.id.toMainMenu);
+        mainMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(homeScreen);
+                finish();
+            }
+        });
 
 //        final TextView tAge = findViewById(R.id.gameAge);
 //        final TextView tHobby = findViewById(R.id.gameHobby);
@@ -289,9 +300,19 @@ public class MainGame extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        final Intent homeScreen = new Intent(this, HomeScreen.class);
+        startActivity(homeScreen);
+        finish();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.mainMenu).setEnabled(false);
+        menu.findItem(R.id.mainMenu).setVisible(false);
         return true;
     }
 
@@ -305,11 +326,6 @@ public class MainGame extends AppCompatActivity {
 
         if (id == R.id.logout) {
             signOut();
-            mAuth.signOut();
-        } else if (id == R.id.stats) {
-            Intent stats = new Intent(this, Stats.class);
-            startActivity(stats);
-            finish();
         }
         else if (id == R.id.updateProfile) {
             Intent updateProfile = new Intent(this, ProfileCreation.class);

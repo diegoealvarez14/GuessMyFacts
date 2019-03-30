@@ -52,6 +52,16 @@ public class HomeScreen extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button statsPage = (findViewById(R.id.stats));
+        final Intent stats = new Intent(this, Stats.class);
+        statsPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(stats);
+                finish();
+            }
+        });
     }
 
     private void signOut() {
@@ -67,11 +77,18 @@ public class HomeScreen extends AppCompatActivity {
                 });
     }
 
+    @Override
+    public void onBackPressed() {
+        //Do nothing
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.mainMenu).setEnabled(false);
+        menu.findItem(R.id.mainMenu).setVisible(false);
         return true;
     }
 
@@ -85,11 +102,6 @@ public class HomeScreen extends AppCompatActivity {
 
         if (id == R.id.logout) {
             signOut();
-            mAuth.signOut();
-        } else if (id == R.id.stats) {
-            Intent stats = new Intent(this, Stats.class);
-            startActivity(stats);
-            finish();
         }
         else if (id == R.id.updateProfile) {
             Intent updateProfile = new Intent(this, ProfileCreation.class);
