@@ -74,6 +74,7 @@ public class MainGame extends AppCompatActivity {
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
 
+
         candidates = new LinkedList<>();
         usedCandidates = new HashSet<>();
         final Button mainMenu = findViewById(R.id.toMainMenu);
