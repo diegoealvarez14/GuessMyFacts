@@ -222,6 +222,29 @@ public class MainGame extends AppCompatActivity {
         findViewById(R.id.nextButton).setVisibility(View.VISIBLE);
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     public void nextUser() {
         if(MainGame.candidates.isEmpty() && !noUsers) {
             refillCandidates();
@@ -233,7 +256,21 @@ public class MainGame extends AppCompatActivity {
         if(!MainGame.noUsers && guessCandidate != null) {
             ImageView image = findViewById(R.id.imageView);
             byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
-            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
+            //int imageHeight = options.outHeight;
+            //int imageWidth = options.outWidth;
+            //String imageType = options.outMimeType;
+
+            options.inSampleSize = calculateInSampleSize(options, 100, 100);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            decodedImage =  BitmapFactory.decodeByteArray(imageBytes, 0,imageBytes.length, options);
+
+           // Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             image.setImageBitmap(decodedImage);
             TextView actualAge = findViewById(R.id.result1);
             TextView actualColor = findViewById(R.id.result2);
