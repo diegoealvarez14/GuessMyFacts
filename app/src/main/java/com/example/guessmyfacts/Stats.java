@@ -44,10 +44,8 @@ public class Stats extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String email;
 
-    private HashMap<Integer, Integer> ageMap = new HashMap<Integer, Integer>();
-    private HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
-    private HashMap<String, Integer> hobbyMap = new HashMap<String, Integer>();
-
+    private HashMap<User.Question, HashMap<String, Integer>> statsMap =
+            new HashMap<User.Question, HashMap<String, Integer>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,29 +61,28 @@ public class Stats extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
+        for(User.Question question : User.Question.values()) {
+            statsMap.put(question, new HashMap<String, Integer>());
+        }
+
         synchronized (db) {
             db.collection("users").document(email).collection("stats").get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             for(QueryDocumentSnapshot data : task.getResult()) {
-                                int age = Integer.parseInt(data.getData().get("age").toString());
-                                String color = data.getData().get("color").toString();
-                                String hobby = data.getData().get("hobby").toString();
-                                if(ageMap.containsKey(age)) {
-                                    ageMap.put(age, ageMap.get(age) + 1);
-                                } else {
-                                    ageMap.put(age, 1);
-                                }
-                                if(colorMap.containsKey(color)) {
-                                    colorMap.put(color, colorMap.get(color) + 1);
-                                } else {
-                                    colorMap.put(color, 1);
-                                }
-                                if(hobbyMap.containsKey(hobby)) {
-                                    hobbyMap.put(hobby, hobbyMap.get(hobby) + 1);
-                                } else {
-                                    hobbyMap.put(hobby, 1);
+                                for(User.Question question : User.Question.values()) {
+                                    if(data.getData().containsKey(question.getStatsKey())) {
+                                        String response = data.getData().get(question.getStatsKey()).toString();
+                                        HashMap<String, Integer> temp = statsMap.get(question);
+                                        if(temp.containsKey(response)) {
+                                            temp.put(response, temp.get(response) + 1);
+                                        } else {
+                                            temp.put(response, 1);
+                                        }
+                                    } else {
+                                        // Hasn't answered question yet
+                                    }
                                 }
                             }
                             PieChart ageChart = findViewById(R.id.AgeChart);
@@ -93,10 +90,10 @@ public class Stats extends AppCompatActivity {
                             ageChart.setEntryLabelTextSize(36);
                             ageChart.getDescription().setEnabled(false);
 
-                            ArrayList<Integer> ages = new ArrayList<Integer>(ageMap.keySet());
+                            ArrayList<String> ages = new ArrayList<String>(statsMap.get(User.Question.AGE).keySet());
                             ArrayList<PieEntry> ageCounts = new ArrayList<PieEntry>();
                             int i = 0;
-                            for(Integer count : ageMap.values()) {
+                            for(Integer count : statsMap.get(User.Question.AGE).values()) {
                                 ageCounts.add(new PieEntry(count, ages.get(i).toString()));
                                 i++;
                             }
@@ -128,10 +125,10 @@ public class Stats extends AppCompatActivity {
                             colorChart.setEntryLabelTextSize(36);
                             colorChart.getDescription().setEnabled(false);
 
-                            ArrayList<String> colors = new ArrayList<String>(colorMap.keySet());
+                            ArrayList<String> colors = new ArrayList<String>(statsMap.get(User.Question.COLOR).keySet());
                             ArrayList<PieEntry> colorCounts = new ArrayList<PieEntry>();
                             i = 0;
-                            for(Integer count : colorMap.values()) {
+                            for(Integer count : statsMap.get(User.Question.COLOR).values()) {
                                 colorCounts.add(new PieEntry(count, colors.get(i).toString()));
                                 i++;
                             }
@@ -159,10 +156,10 @@ public class Stats extends AppCompatActivity {
                             //hobbyChart.setEntryLabelTextSize(36);
                             hobbyChart.getDescription().setEnabled(false);
 
-                            ArrayList<String> hobbies = new ArrayList<String>(hobbyMap.keySet());
+                            ArrayList<String> hobbies = new ArrayList<String>(statsMap.get(User.Question.HOBBY).keySet());
                             ArrayList<PieEntry> hobbyCounts = new ArrayList<PieEntry>();
                             i = 0;
-                            for(Integer count : hobbyMap.values()) {
+                            for(Integer count : statsMap.get(User.Question.HOBBY).values()) {
                                 hobbyCounts.add(new PieEntry(count, hobbies.get(i).toString()));
                                 i++;
                             }

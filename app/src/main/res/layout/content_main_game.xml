@@ -27,13 +27,13 @@
 
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/editText1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Age"
-        android:inputType="number"
+        android:inputType="textPersonName"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -47,10 +47,10 @@
         android:gravity="center"
         android:textSize="18sp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/editText"
-        app:layout_constraintEnd_toEndOf="@+id/editText"
-        app:layout_constraintStart_toStartOf="@+id/editText"
-        app:layout_constraintTop_toTopOf="@+id/editText" />
+        app:layout_constraintBottom_toBottomOf="@+id/editText1"
+        app:layout_constraintEnd_toEndOf="@+id/editText1"
+        app:layout_constraintStart_toStartOf="@+id/editText1"
+        app:layout_constraintTop_toTopOf="@+id/editText1" />
 
     <EditText
         android:id="@+id/editText2"
@@ -64,7 +64,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/editText1" />
 
     <TextView
         android:id="@+id/result2"

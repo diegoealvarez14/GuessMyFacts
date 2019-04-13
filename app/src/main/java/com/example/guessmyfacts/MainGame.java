@@ -6,10 +6,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -19,30 +18,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 
 public class MainGame extends AppCompatActivity {
 
@@ -56,6 +50,9 @@ public class MainGame extends AppCompatActivity {
     User guessCandidate;
     static Queue<User> candidates;
     static HashSet<String> usedCandidates;
+
+    ArrayList<User.Question> currentQuestions = new ArrayList<User.Question>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -73,8 +70,6 @@ public class MainGame extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         email = GoogleSignIn.getLastSignedInAccount(this).getEmail();
 
-
-
         candidates = new LinkedList<>();
         usedCandidates = new HashSet<>();
         final Button mainMenu = findViewById(R.id.toMainMenu);
@@ -85,37 +80,6 @@ public class MainGame extends AppCompatActivity {
                 finish();
             }
         });
-
-//        final TextView tAge = findViewById(R.id.gameAge);
-//        final TextView tHobby = findViewById(R.id.gameHobby);
-//        final TextView tColor = findViewById(R.id.gameColor);
-
-//        DocumentReference docRef = db.collection("users").document(email);
-
-//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        Map<String, Object> a = document.getData();
-//                        String age = a.get("AGE").toString();
-//                        Log.d("MainGame", "Age: " + age);
-//                        String color = a.get("COLOR").toString();
-//                        Log.d("MainGame", "Color: " + color);
-//                        String hobby = a.get("HOBBY").toString();
-//                        Log.d("MainGame", "Hobby: " + hobby);
-//                        tAge.setText(age);
-//                        tColor.setText(color);
-//                        tHobby.setText(hobby);
-//                    } else {
-//                        Log.d("MainGame", "No such document");
-//                    }
-//                } else {
-//                    Log.d("MainGame", "get failed with ", task.getException());
-//                }
-//            }
-//        });
         refillCandidates();
     }
 
@@ -159,9 +123,16 @@ public class MainGame extends AppCompatActivity {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         Log.d("doc :", document.getId() + " => " + document.getData());
                                         Map<String, Object> map = document.getData();
-                                        User u = new User(document.getId(),Integer.parseInt(map.get("AGE").toString()),
-                                                map.get("COLOR").toString(),
-                                                map.get("HOBBY").toString(),
+                                        HashMap<User.Question, String> answers = new HashMap<User.Question, String>();
+                                        for(User.Question q : User.Question.values()) {
+                                            if(map.containsKey(q.getUserKey())) {
+                                                answers.put(q, map.get(q.getUserKey()).toString());
+                                            } else {
+                                                // Empty Question
+                                                System.out.println("Question: " + q.getStatsKey());
+                                            }
+                                        }
+                                        User u = new User(document.getId(), answers,
                                                 map.get("PROFILE-PIC").toString());
                                         if(!u.email.equals(email) && !usedCandidates.contains(u.email)) {
                                             MainGame.candidates.add(u);
@@ -185,7 +156,6 @@ public class MainGame extends AppCompatActivity {
     }
 
     public void seeResults(View view){
-
         usedCandidates.add(guessCandidate.email);
         HashMap<String, Object> tempUser = new HashMap<String, Object>();
         tempUser.put("user", guessCandidate.email);
@@ -193,31 +163,32 @@ public class MainGame extends AppCompatActivity {
         db.collection("users").document(email).collection("guesses")
                 .document(guessCandidate.email).set(tempUser);
         //Update Stats
-        int age = Integer.parseInt(((TextView)findViewById(R.id.editText)).getText().toString());
+
+        String answer1 = ((TextView)findViewById(R.id.editText1)).getText().toString();
         // TODO: Check Case, Uniform to LowerCase
-        String color = ((TextView)findViewById(R.id.editText2)).getText().toString();
+        String answer2 = ((TextView)findViewById(R.id.editText2)).getText().toString();
         // TODO: Check Case, Uniform to LowerCase
-        String hobby = ((TextView)findViewById(R.id.editText3)).getText().toString();
-        HashMap<String, Object> stats = new HashMap<String, Object>();
-        stats.put("age", age);
-        stats.put("color", color);
-        stats.put("hobby", hobby);
+        String answer3 = ((TextView)findViewById(R.id.editText3)).getText().toString();
+        HashMap<String, Object> stats = new HashMap<String, Object>();//TODO
+        stats.put(currentQuestions.get(0).getStatsKey(), answer1);
+        stats.put(currentQuestions.get(1).getStatsKey(), answer2);
+        stats.put(currentQuestions.get(2).getStatsKey(), answer3);
         db.collection("users").document(guessCandidate.email)
                 .collection("stats").document().set(stats);
 
-        findViewById(R.id.editText).setVisibility(View.INVISIBLE);
+        findViewById(R.id.editText1).setVisibility(View.INVISIBLE);
         findViewById(R.id.editText2).setVisibility(View.INVISIBLE);
         findViewById(R.id.editText3).setVisibility(View.INVISIBLE);
         findViewById(R.id.resultsButton).setVisibility(View.INVISIBLE);
 
         findViewById(R.id.result1).setVisibility(View.VISIBLE);
-        findViewById(R.id.result1).setBackgroundColor(guessCandidate.age == age ? Color.GREEN : Color.RED);
+        findViewById(R.id.result1).setBackgroundColor(guessCandidate.getAnswer(User.Question.AGE).equals(answer1) ? Color.GREEN : Color.RED);
 
         findViewById(R.id.result2).setVisibility(View.VISIBLE);
-        findViewById(R.id.result2).setBackgroundColor(guessCandidate.color.equals(color) ? Color.GREEN : Color.RED);
+        findViewById(R.id.result2).setBackgroundColor(guessCandidate.getAnswer(User.Question.COLOR).equals(answer2) ? Color.GREEN : Color.RED);
 
         findViewById(R.id.result3).setVisibility(View.VISIBLE);
-        findViewById(R.id.result3).setBackgroundColor(guessCandidate.hobby.equals(hobby) ? Color.GREEN : Color.RED);
+        findViewById(R.id.result3).setBackgroundColor(guessCandidate.getAnswer(User.Question.HOBBY).equals(answer3) ? Color.GREEN : Color.RED);
 
         findViewById(R.id.nextButton).setVisibility(View.VISIBLE);
     }
@@ -229,30 +200,50 @@ public class MainGame extends AppCompatActivity {
 
         // Returns Null if Empty, ie when noUsers = true
         guessCandidate = candidates.poll();
+        currentQuestions.clear();
+
+        currentQuestions = new ArrayList<User.Question>(Arrays.asList(User.Question.values()));
+        Collections.shuffle(currentQuestions);
+        currentQuestions.subList(0, 3);
 
         if(!MainGame.noUsers && guessCandidate != null) {
             ImageView image = findViewById(R.id.imageView);
             byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
             Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             image.setImageBitmap(decodedImage);
-            TextView actualAge = findViewById(R.id.result1);
-            TextView actualColor = findViewById(R.id.result2);
-            TextView actualHobby = findViewById(R.id.result3);
-            actualAge.setText(Integer.toString(guessCandidate.age));
-            actualColor.setText(guessCandidate.color);
-            actualHobby.setText(guessCandidate.hobby);
+            TextView actual1 = findViewById(R.id.result1);
+            EditText editText1 = findViewById(R.id.editText1);
+            TextView actual2 = findViewById(R.id.result2);
+            EditText editText2 = findViewById(R.id.editText2);
+            TextView actual3 = findViewById(R.id.result3);
+            EditText editText3 = findViewById(R.id.editText3);
+            actual1.setText(guessCandidate.getAnswer(currentQuestions.get(0)));
+            if(currentQuestions.get(0).isNumeric()) {
+                editText1.setInputType(InputType.TYPE_CLASS_NUMBER);
+            }
+            editText1.setHint(currentQuestions.get(0).getPrompt());
+            actual2.setText(guessCandidate.getAnswer(currentQuestions.get(1)));
+            if(currentQuestions.get(1).isNumeric()) {
+                editText2.setInputType(InputType.TYPE_CLASS_NUMBER);
+            }
+            editText2.setHint(currentQuestions.get(1).getPrompt());
+            actual3.setText(guessCandidate.getAnswer(currentQuestions.get(2)));
+            if(currentQuestions.get(2).isNumeric()) {
+                editText3.setInputType(InputType.TYPE_CLASS_NUMBER);
+            }
+            editText3.setHint(currentQuestions.get(2).getPrompt());
 
-            findViewById(R.id.editText).setVisibility(View.VISIBLE);
-            ((EditText)findViewById(R.id.editText)).getText().clear();
+            findViewById(R.id.editText1).setVisibility(View.VISIBLE);
+            ((EditText)findViewById(R.id.editText1)).getText().clear();
             findViewById(R.id.editText2).setVisibility(View.VISIBLE);
             ((EditText)findViewById(R.id.editText2)).getText().clear();
             findViewById(R.id.editText3).setVisibility(View.VISIBLE);
             ((EditText)findViewById(R.id.editText3)).getText().clear();
             findViewById(R.id.resultsButton).setVisibility(View.VISIBLE);
 
-            actualAge.setVisibility(View.INVISIBLE);
-            actualColor.setVisibility(View.INVISIBLE);
-            actualHobby.setVisibility(View.INVISIBLE);
+            actual1.setVisibility(View.INVISIBLE);
+            actual2.setVisibility(View.INVISIBLE);
+            actual3.setVisibility(View.INVISIBLE);
             findViewById(R.id.nextButton).setVisibility(View.INVISIBLE);
         } else {
             // Null Candidate Means No More Users in Database to Guess
