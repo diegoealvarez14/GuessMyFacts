@@ -1,6 +1,9 @@
 package com.example.guessmyfacts;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -48,6 +52,11 @@ public class HomeScreen extends AppCompatActivity {
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                while(!checkNetworkConnection()) {
+                    Toast t = Toast.makeText(getApplicationContext(), "Connection lost!",Toast.LENGTH_LONG);
+                    t.show();
+                }
+
                 startActivity(profileCreation);
                 finish();
             }
@@ -62,6 +71,13 @@ public class HomeScreen extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public boolean checkNetworkConnection(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private void signOut() {

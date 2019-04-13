@@ -1,9 +1,13 @@
 package com.example.guessmyfacts;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -96,6 +100,12 @@ public class MainGame extends AppCompatActivity {
         if(MainGame.candidates.isEmpty()) {
 
             // Need Synchronization otherwise can get weird race conditions between the two queries
+
+            if(!checkNetworkConnection()){
+               Toast.makeText(this,"Network Connection is lost. Please connect to a network to continue!",Toast.LENGTH_SHORT).show();
+               // networkLost.show();
+            }
+
             synchronized (db) {
                 db.collection("users").document(email).collection("guesses").get().addOnCompleteListener(
                         new OnCompleteListener<QuerySnapshot>() {
@@ -113,6 +123,10 @@ public class MainGame extends AppCompatActivity {
                 );
 
                 //veda's changes
+                if(!checkNetworkConnection()){
+                    Toast.makeText(getApplicationContext(),"Network Connection is lost. Please connect to a network to continue!",Toast.LENGTH_SHORT).show();
+
+                }
                 db.collection("users")
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -155,10 +169,25 @@ public class MainGame extends AppCompatActivity {
             }
     }
 
+    public boolean checkNetworkConnection(){
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     public void seeResults(View view){
         usedCandidates.add(guessCandidate.email);
         HashMap<String, Object> tempUser = new HashMap<String, Object>();
         tempUser.put("user", guessCandidate.email);
+
+        if(!checkNetworkConnection()){
+            Toast.makeText(this,"Network Connection is lost. Please connect to a network to continue!",Toast.LENGTH_SHORT).show();
+
+        }
+
+  //      while(!checkNetworkConnection()){}
+
         //Update Guesses Collection
         db.collection("users").document(email).collection("guesses")
                 .document(guessCandidate.email).set(tempUser);
@@ -193,6 +222,29 @@ public class MainGame extends AppCompatActivity {
         findViewById(R.id.nextButton).setVisibility(View.VISIBLE);
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     public void nextUser() {
         if(MainGame.candidates.isEmpty() && !noUsers) {
             refillCandidates();
@@ -209,7 +261,21 @@ public class MainGame extends AppCompatActivity {
         if(!MainGame.noUsers && guessCandidate != null) {
             ImageView image = findViewById(R.id.imageView);
             byte[] imageBytes = Base64.decode(guessCandidate.profile_pic, Base64.DEFAULT);
-            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
+            //int imageHeight = options.outHeight;
+            //int imageWidth = options.outWidth;
+            //String imageType = options.outMimeType;
+
+            options.inSampleSize = calculateInSampleSize(options, 100, 100);
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            decodedImage =  BitmapFactory.decodeByteArray(imageBytes, 0,imageBytes.length, options);
+
+           // Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
             image.setImageBitmap(decodedImage);
             TextView actual1 = findViewById(R.id.result1);
             EditText editText1 = findViewById(R.id.editText1);
