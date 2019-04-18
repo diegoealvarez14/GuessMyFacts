@@ -287,16 +287,22 @@ public class MainGame extends AppCompatActivity {
             actual1.setText(guessCandidate.getAnswer(currentQuestions.get(0)));
             if(currentQuestions.get(0).isNumeric()) {
                 editText1.setInputType(InputType.TYPE_CLASS_NUMBER);
+            } else {
+                editText1.setInputType(InputType.TYPE_CLASS_TEXT);
             }
             editText1.setHint(currentQuestions.get(0).getPrompt());
             actual2.setText(guessCandidate.getAnswer(currentQuestions.get(1)));
             if(currentQuestions.get(1).isNumeric()) {
                 editText2.setInputType(InputType.TYPE_CLASS_NUMBER);
+            } else {
+                editText2.setInputType(InputType.TYPE_CLASS_TEXT);
             }
             editText2.setHint(currentQuestions.get(1).getPrompt());
             actual3.setText(guessCandidate.getAnswer(currentQuestions.get(2)));
             if(currentQuestions.get(2).isNumeric()) {
                 editText3.setInputType(InputType.TYPE_CLASS_NUMBER);
+            } else {
+                editText3.setInputType(InputType.TYPE_CLASS_TEXT);
             }
             editText3.setHint(currentQuestions.get(2).getPrompt());
 
